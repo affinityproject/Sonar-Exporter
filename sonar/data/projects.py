@@ -26,8 +26,14 @@ class Projects(object):
     def get_list_projects(self):
         return self.list_status
 
+    def get_project_measures(self, project_name):
+        return self.get_project_info(project_name)['measures']
+
     def get_projects_id_list(self):
         return self.list_projects
+
+    def get_list_project_info(self):
+        return self.project_info
 
     def get_total_projects(self):
         return len(self.list_projects)

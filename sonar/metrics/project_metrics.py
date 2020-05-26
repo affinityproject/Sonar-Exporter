@@ -2,7 +2,6 @@ from prometheus_client.core import GaugeMetricFamily
 
 
 def make_metrics(projects):
-
     list_metrics = []
 
     # Total Projects
@@ -35,33 +34,33 @@ def make_metrics(projects):
 
         list_metrics.append(metric)
 
-        # List of Projects
+    # Projects Statuses
+    for prj_name in projects.project_info:
+        metric_name = prj_name.replace("-", "_")
         metric = GaugeMetricFamily(
-            'sonar_projects_list',
-            'List of Sonar Projects',
-            labels=None
+            'sonar_project_{}'.format(metric_name),
+            'Information of {} project'.format(metric_name),
+            labels=['measure']
         )
-
-        metric.add_metric(
-            labels=[],
-            value=projects.get_list_projects()
-        )
-
+        for keys, values in projects.get_project_measures(prj_name).items():
+            metric.add_metric(
+                labels=[keys],
+                value=values
+            )
         list_metrics.append(metric)
 
-        # List of Projects Statuses
+    # Statuses divided by projects
+    for measure in projects.measures_total.keys():
         metric = GaugeMetricFamily(
-            'sonar_project_statuses_list',
-            'list of Project Statuses',
-            labels=['prj_id']
+            'sonar_measures_{}_by_project'.format(measure.lower()),
+            'Display status {} divided by projects'.format(measure),
+            labels=['prj']
         )
 
-        list_projects = projects.get_projects_id_list()
-
-        for prj_id in list_projects:
+        for key, value1 in projects.get_list_project_info().items():
             metric.add_metric(
-                labels=[prj_id],
-                value=projects.get_project_status(prj_id)
+                labels=[key],
+                value=value1['measures'][measure]
             )
 
         list_metrics.append(metric)
